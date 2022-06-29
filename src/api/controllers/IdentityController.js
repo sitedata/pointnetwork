@@ -1,6 +1,7 @@
 const PointSDKController = require('./PointSDKController');
 const blockchain = require('../../network/providers/ethereum');
 const solana = require('../../network/providers/solana');
+const {blockchain: bp, tldToChain} = require('../../network/providers/provider');
 const {getNetworkPublicKey, getNetworkAddress} = require('../../wallet/keystore');
 const logger = require('../../core/log');
 const log = logger.child({Module: 'IdentityController'});
@@ -325,6 +326,35 @@ class IdentityController extends PointSDKController {
             this.rep.status(status);
             return this._status(status)._response({errorMsg: err.message});
         }
+    }
+
+    async resolveDomainNew() {
+        const SUPPORTED_TLD = ['.sol', '.eth'];
+        const {domain} = this.req.params;
+
+        const tld = SUPPORTED_TLD.find(tld => domain.endsWith(tld));
+        if (!tld) {
+            const status = 400;
+            const errorMsg = `Unsupported TLD in "${domain}".`;
+            this.rep.status(status);
+            return this._status(status)._response({errorMsg});
+        }
+
+        try {
+            const registry = await bp.resolveDomain(tldToChain[tld], domain);
+            return this._response(registry);
+        } catch (err) {
+            if (err.message === 'Invalid name account provided') {
+                const status = 400;
+                const errorMsg = `No address found for domain name "${domain}".`;
+                this.rep.status(status);
+                return this._status(status)._response({errorMsg});
+            }
+            const status = 500;
+            this.rep.status(status);
+            return this._status(status)._response({errorMsg: err.message});
+        }
+
     }
 }
 

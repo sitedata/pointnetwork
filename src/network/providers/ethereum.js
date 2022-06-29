@@ -113,8 +113,11 @@ const getEthers = chain => {
     }
 
     if (!ethersProviders[chain]) {
-        const url = networks[chain].address;
-        ethersProviders[chain] = new ethers.providers.JsonRpcProvider(url);
+        // This is a bug that we need to fix in `develop`, but since it only affects ENS-functionality,
+        // it's not urgent I would say.
+        const host = networks[chain].address;
+        const protocol = networks[chain].tls ? 'https' : 'http';
+        ethersProviders[chain] = new ethers.providers.JsonRpcProvider(`${protocol}://${host}`);
     }
 
     return ethersProviders[chain];

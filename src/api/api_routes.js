@@ -16,6 +16,8 @@ module.exports = [
     ['POST', '/v1/api/identity/open', 'IdentityController@openLink'],
     ['POST', '/v1/api/identity/register', 'IdentityController@registerIdentity'],
     ['GET', '/v1/api/identity/resolve/:domain', 'IdentityController@resolveDomain'],
+    // This is just to test side by side, the API is not changing so we won't introduce a v2 route.
+    ['GET', '/v2/api/identity/resolve/:domain', 'IdentityController@resolveDomainNew'],
     ['GET', '/v1/api/status/ping', 'PingController@ping'],
     ['GET', '/v1/api/status/meta', 'StatusController@meta'],
     ['GET', '/v1/api/deploy', 'DeployController@deploy'],
